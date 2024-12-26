@@ -66,6 +66,11 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      colorMode: {
+        defaultMode: 'light',
+        // disableSwitch: false,
+        // respectPrefersColorScheme: false,
+      },
       // Replace with your project's social card
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
@@ -77,6 +82,7 @@ const config = {
         items: [
           {
             type: 'localeDropdown',
+            position: 'right',
           },
           {
             type: 'docSidebar',
