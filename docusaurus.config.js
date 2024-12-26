@@ -11,7 +11,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'PaPi-Docs',
-  tagline: 'Documentation resource FiveM',
+  tagline: 'Documentation ressource FiveM',
   favicon: 'img/favicon.ico',
   // Set the production url of your site here
   url: 'https://your-docusaurus-site.example.com',
@@ -79,7 +79,7 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Tutorial',
+            label: 'Tutoriel',
           },
           {to: '/blog', label: 'Blog', position: 'left'},
           {
@@ -96,30 +96,22 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
+                label: 'Tutoriel',
                 to: '/docs/intro',
               },
             ],
           },
           {
-            title: 'Community',
+            title: 'Communauté',
             items: [
               {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
                 label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'X',
-                href: 'https://x.com/docusaurus',
+                href: 'https://discordapp.com/invite/67U6yg6a59',
               },
             ],
           },
           {
-            title: 'More',
+            title: 'Autres',
             items: [
               {
                 label: 'Blog',
