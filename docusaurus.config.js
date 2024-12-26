@@ -29,7 +29,7 @@ const config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'fr',
-    locales: ['fr'],
+    locales: ['fr', 'en'],
   },
   presets: [
     [
@@ -127,12 +127,12 @@ const config = {
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                href: 'https://github.com/Mesrine67',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} PaPi-Docs, Inc.`,
       },
       prism: {
         theme: prismThemes.github,
