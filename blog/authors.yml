@@ -1,12 +1,12 @@
-yangshun:
-  name: Yangshun Tay
-  title: Front End Engineer @ Facebook
-  url: https://github.com/yangshun
-  image_url: https://github.com/yangshun.png
+papi:
+  name: PaPi (Mike.M)
+  title: Ingénieur Front End
+  url: https://github.com/Mesrine67
+  image_url: https://github.com/Mesrine67.png
   page: true
   socials:
-    x: yangshunz
-    github: yangshun
+    x: papi
+    github: papi
 
 slorber:
   name: Sébastien Lorber
