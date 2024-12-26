@@ -29,7 +29,7 @@ const config = {
   // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
-    locales: ['fr-FR', 'en'],
+    locales: ['en', 'fr'],
   },
   presets: [
     [
@@ -75,6 +75,9 @@ const config = {
           src: 'img/logo.svg',
         },
         items: [
+          {
+            type: 'localeDropdown',
+          },
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
