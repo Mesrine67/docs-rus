@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Introduction aux documents
+# Introduction
 
 Documentation de la **ressource FiveM (420-Script)**.
 
