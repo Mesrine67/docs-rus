@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Intro docs
 
-documentation **resource fivem (PaPi-Script)**.
+Documentation for **FiveM resource (420-Script)**.
 
 `papi_resource`
 
