@@ -24,7 +24,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Tutorial',
-      items: ['tutorial-fivem/create-a-document', 'tutorial-fivem/markdown-features'],
+      items: ['tutorial-fivem/create-a-document', 'tutorial-fivem/install_fivem_linux'],
     },
   ],
 
