@@ -38,11 +38,6 @@ nano install_dependencies.sh
 
 ```bash title="install_dependencies.sh"
 #!/bin/bash
-# =============================================================================
-# HEBERGTONSERV.COM
-# FIVEM SERVER DEPENDENCIES INSTALLATION
-# Simple version - Just the dependencies
-# =============================================================================
 set -e
 # Colors
 RED='\033[0;31m'
@@ -60,30 +55,30 @@ echo "Installing prerequisites..."
 # System update
 log_info "Updating APT sources"
 if ! sudo apt update; then
-log_error "Failed to update sources"
-exit 1
+    log_error "Failed to update sources"
+    exit 1
 fi
 log_success "Sources updated"
 log_info "Updating system (may take time...)"
 if ! sudo apt upgrade -y; then
-log_warning "System update issue (continuing)"
+    log_warning "System update issue (continuing)"
 else
-log_success "System updated"
+    log_success "System updated"
 fi
 echo ""
 # Dependencies installation
 log_info "Installing dependencies"
 dependencies=("wget" "xz-utils" "git" "nano" "curl" "unzip" "screen" "jq" "rsync")
 for dep in "${dependencies[@]}"; do
-if ! command -v "$dep" &> /dev/null; then
-log_info "Installing $dep"
-if ! sudo apt install -y "$dep"; then
-log_error "Failed to install $dep"
-exit 1
-fi
-else
-log_success "$dep already installed"
-fi
+    if ! command -v "$dep" &> /dev/null; then
+        log_info "Installing $dep"
+        if ! sudo apt install -y "$dep"; then
+            log_error "Failed to install $dep"
+            exit 1
+        fi
+    else
+        log_success "$dep already installed"
+    fi
 done
 echo ""
 log_success "Dependencies installed!"
