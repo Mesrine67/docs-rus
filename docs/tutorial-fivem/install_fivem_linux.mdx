@@ -10,7 +10,7 @@ This guide explains how to install a FiveM server on a Linux/Ubuntu system, step
 
 For security reasons, it's recommended to create a dedicated user for your FiveM server rather than using the root user.
 
-```bash
+```bash title="command"
 # Connect to your server via SSH
 # Create a new user named "fivem" without a password
 sudo adduser --disabled-password --gecos "" fivem
@@ -29,7 +29,7 @@ Create an installation script for the dependencies required by FiveM.
 
 ### Step 1: Create the Installation Script
 
-```bash
+```bash title="command"
 # Create a new file for the script
 nano install_dependencies.sh
 ```
@@ -86,7 +86,7 @@ log_success "Dependencies installed!"
 
 ### Step 3: Make the Script Executable and Run It
 
-```bash
+```bash title="command"
 # Make the script executable
 chmod +x install_dependencies.sh
 
