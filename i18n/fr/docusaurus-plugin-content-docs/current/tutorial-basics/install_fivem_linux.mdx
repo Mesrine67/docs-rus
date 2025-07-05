@@ -1,0 +1,126 @@
+---
+sidebar_position: 4
+---
+
+# Installation de FiveM sur Linux/Ubuntu
+
+Ce guide vous explique comment installer un serveur FiveM sur un système Linux/Ubuntu, étape par étape.
+
+## Création de l'utilisateur FiveM
+
+Pour des raisons de sécurité, il est recommandé de créer un utilisateur dédié pour votre serveur FiveM plutôt que d'utiliser l'utilisateur root.
+
+```bash
+# Connectez-vous en SSH à votre serveur
+# Créez un nouvel utilisateur nommé "fivem"
+sudo adduser --disabled-password --gecos "" fivem
+
+# Ajoutez l'utilisateur au groupe sudo pour les permissions administratives
+sudo usermod -aG sudo fivem
+
+# Connectez-vous avec le nouvel utilisateur
+su - fivem
+# ou reconnectez-vous en SSH avec ce nouvel utilisateur
+```
+
+## Installation des dépendances
+
+Créez un script d'installation pour les dépendances nécessaires à FiveM.
+
+### Étape 1: Créer le script d'installation
+
+```bash
+# Créez un nouveau fichier pour le script
+nano install_dependencies.sh
+```
+
+### Étape 2: Copier le code suivant dans le fichier
+
+```bash title="install_dependencies.sh"
+#!/bin/bash
+# =============================================================================
+# HEBERGTONSERV.COM
+# INSTALLATION DÉPENDANCES SERVEUR FIVEM
+# Version simple - Juste les dépendances
+# =============================================================================
+set -e
+# Couleurs
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+echo "INSTALLATION DÉPENDANCES FIVEM"
+echo "=============================="
+echo "Installation des prérequis..."
+# Mise à jour système
+log_info "Mise à jour des sources APT"
+if ! sudo apt update; then
+log_error "Échec mise à jour sources"
+exit 1
+fi
+log_success "Sources mises à jour"
+log_info "Mise à jour système (peut prendre du temps...)"
+if ! sudo apt upgrade -y; then
+log_warning "Problème mise à jour système (continuons)"
+else
+log_success "Système mis à jour"
+fi
+echo ""
+# Installation dépendances
+log_info "Installation dépendances"
+dependencies=("wget" "xz-utils" "git" "nano" "curl" "unzip" "screen" "jq" "rsync")
+for dep in "${dependencies[@]}"; do
+if ! command -v "$dep" &> /dev/null; then
+log_info "Installation $dep"
+if ! sudo apt install -y "$dep"; then
+log_error "Échec installation $dep"
+exit 1
+fi
+else
+log_success "$dep installé"
+fi
+done
+echo ""
+log_success "Dépendances installées !"
+```
+
+### Étape 3: Rendre le script exécutable et l'exécuter
+
+```bash
+# Rendre le script exécutable
+chmod +x install_dependencies.sh
+
+# Exécuter le script
+./install_dependencies.sh
+```
+
+:::tip
+Ce script installe toutes les dépendances nécessaires pour faire fonctionner un serveur FiveM sur Linux, y compris les outils de base comme wget, git, curl, et screen qui sont essentiels pour la gestion du serveur.
+:::
+
+:::note
+Si vous rencontrez des erreurs de permission lors de l'exécution du script, assurez-vous que votre utilisateur a les droits sudo ou exécutez la commande avec `sudo` devant.
+:::
+
+## Que fait ce script?
+
+Le script d'installation effectue les opérations suivantes:
+
+1. **Mise à jour du système** - Met à jour les sources APT et les paquets du système
+2. **Installation des dépendances** - Installe tous les paquets nécessaires au fonctionnement de FiveM:
+   - wget: Pour télécharger des fichiers
+   - xz-utils: Pour la décompression des archives
+   - git: Pour la gestion des versions
+   - nano: Éditeur de texte simple
+   - curl: Outil de transfert de données
+   - unzip: Pour décompresser des archives
+   - screen: Pour exécuter des processus en arrière-plan
+   - jq: Pour manipuler des données JSON
+   - rsync: Pour la synchronisation de fichiers
+
+Dans les prochaines sections, nous verrons comment télécharger et configurer le serveur FiveM lui-même.
