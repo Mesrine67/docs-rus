@@ -38,55 +38,60 @@ nano install_dependencies.sh
 
 ```bash title="install_dependencies.sh"
 #!/bin/bash
-# =============================================================================
-# HEBERGTONSERV.COM
-# FIVEM SERVER DEPENDENCIES INSTALLATION
-# Simple version - Just the dependencies
-# =============================================================================
+
 set -e
-# Colors
+
+# Couleurs
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
-echo "FIVEM DEPENDENCIES INSTALLATION"
+
+echo "INSTALLATION DÉPENDANCES FIVEM"
 echo "=============================="
-echo "Installing prerequisites..."
-# System update
-log_info "Updating APT sources"
+
+echo "Installation des prérequis..."
+
+# Mise à jour système
+log_info "Mise à jour des sources APT"
 if ! sudo apt update; then
-log_error "Failed to update sources"
-exit 1
+    log_error "Échec mise à jour sources"
+    exit 1
 fi
-log_success "Sources updated"
-log_info "Updating system (may take time...)"
+log_success "Sources mises à jour"
+
+log_info "Mise à jour système (peut prendre du temps...)"
 if ! sudo apt upgrade -y; then
-log_warning "System update issue (continuing)"
+    log_warning "Problème mise à jour système (continuons)"
 else
-log_success "System updated"
+    log_success "Système mis à jour"
 fi
+
 echo ""
-# Dependencies installation
-log_info "Installing dependencies"
+
+# Installation dépendances
+log_info "Installation dépendances"
 dependencies=("wget" "xz-utils" "git" "nano" "curl" "unzip" "screen" "jq" "rsync")
 for dep in "${dependencies[@]}"; do
-if ! command -v "$dep" &> /dev/null; then
-log_info "Installing $dep"
-if ! sudo apt install -y "$dep"; then
-log_error "Failed to install $dep"
-exit 1
-fi
-else
-log_success "$dep already installed"
-fi
+    if ! command -v "$dep" &> /dev/null; then
+        log_info "Installation $dep"
+        if ! sudo apt install -y "$dep"; then
+            log_error "Échec installation $dep"
+            exit 1
+        fi
+    else
+        log_success "$dep installé"
+    fi
 done
 echo ""
-log_success "Dependencies installed!"
+
+log_success "Dépendances installées !"
 ```
 
 ### Step 3: Make the Script Executable and Run It
