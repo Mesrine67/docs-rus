@@ -14,22 +14,31 @@ For security reasons, it's recommended to create a dedicated user for your FiveM
 
 ## Connect to your server via SSH
 
-```bash title="[command] - Create a new user named 'fivem'"
-sudo adduser fivem
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-:::info
-The system will ask you to set a password for the `fivem` user. 
-Choose a secure password and make sure to note it down!
-:::
-
-```bash title="[command] - Add the user to the sudo group for administrative permissions"
-sudo usermod -aG sudo fivem
-```
-
-```bash title="[command] - Log in as the new user"
-su - fivem
-```
+<Tabs groupId="commands">
+  <TabItem value="create-user" label="Create user" default>
+    ```bash title="Terminal"
+    sudo adduser fivem
+    ```
+    
+    :::info
+    The system will ask you to set a password for the `fivem` user. 
+    Choose a secure password and make sure to note it down!
+    :::
+  </TabItem>
+  <TabItem value="add-sudo" label="Add to sudoers">
+    ```bash title="Terminal"
+    sudo usermod -aG sudo fivem
+    ```
+  </TabItem>
+  <TabItem value="login" label="Log in">
+    ```bash title="Terminal"
+    su - fivem
+    ```
+  </TabItem>
+</Tabs>
 
 :::tip title="Visual demonstration"
 ![Creating a FiveM user](/img/tutorial-fivem/create-fivem-user.gif)
@@ -43,28 +52,37 @@ Create an installation script for the dependencies required by FiveM.
 
 ### Step 1: Create the Installation Script
 
-```bash title="[command] - Create a new file for the script "
+```bash title="Terminal"
 nano install_dependencies.sh
 ```
 
 ### Step 2: Copy the Following Code into the File
 
-```bash title="install_dependencies.sh"
+<details>
+<summary><strong>📄 install_dependencies.sh</strong></summary>
+
+```bash showLineNumbers
 #!/bin/bash
 set -e
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+
+# Functions for messages
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
 echo "FIVEM DEPENDENCIES INSTALLATION"
 echo "=============================="
+
 echo "Installing prerequisites..."
+
 # System update
 log_info "Updating APT sources"
 if ! sudo apt update; then
@@ -72,13 +90,16 @@ if ! sudo apt update; then
     exit 1
 fi
 log_success "Sources updated"
+
 log_info "Updating system (may take time...)"
 if ! sudo apt upgrade -y; then
     log_warning "System update issue (continuing)"
 else
     log_success "System updated"
 fi
+
 echo ""
+
 # Dependencies installation
 log_info "Installing dependencies"
 dependencies=("wget" "xz-utils" "git" "nano" "curl" "unzip" "screen" "jq" "rsync")
@@ -94,18 +115,56 @@ for dep in "${dependencies[@]}"; do
     fi
 done
 echo ""
+
 log_success "Dependencies installed!"
 ```
+</details>
 
 ### Step 3: Make the Script Executable and Run It
 
-```bash title="[command] - Make the script executable"
-chmod +x install_dependencies.sh
-```
-
-```bash title="[command] - Run the script"
-./install_dependencies.sh
-```
+<Tabs>
+  <TabItem value="chmod" label="Make executable" default>
+    ```bash title="Terminal"
+    chmod +x install_dependencies.sh
+    ```
+  </TabItem>
+  <TabItem value="run" label="Run the script">
+    ```bash title="Terminal"
+    ./install_dependencies.sh
+    ```
+    
+    <div className="terminal-output">
+    <pre style={{
+      backgroundColor: '#282c34',
+      color: '#f8f8f2',
+      padding: '1rem',
+      borderRadius: '0.5rem',
+      overflow: 'auto'
+    }}>
+    <span style={{color: '#61afef'}}>FIVEM DEPENDENCIES INSTALLATION</span>
+    ==============================
+    Installing prerequisites...
+    <span style={{color: '#61afef'}}>[INFO]</span> Updating APT sources
+    <span style={{color: '#98c379'}}>[OK]</span> Sources updated
+    <span style={{color: '#61afef'}}>[INFO]</span> Updating system (may take time...)
+    <span style={{color: '#98c379'}}>[OK]</span> System updated
+    
+    <span style={{color: '#61afef'}}>[INFO]</span> Installing dependencies
+    <span style={{color: '#98c379'}}>[OK]</span> wget already installed
+    <span style={{color: '#98c379'}}>[OK]</span> xz-utils already installed
+    <span style={{color: '#98c379'}}>[OK]</span> git already installed
+    <span style={{color: '#98c379'}}>[OK]</span> nano already installed
+    <span style={{color: '#98c379'}}>[OK]</span> curl already installed
+    <span style={{color: '#98c379'}}>[OK]</span> unzip already installed
+    <span style={{color: '#98c379'}}>[OK]</span> screen already installed
+    <span style={{color: '#98c379'}}>[OK]</span> jq already installed
+    <span style={{color: '#98c379'}}>[OK]</span> rsync already installed
+    
+    <span style={{color: '#98c379'}}>[OK]</span> Dependencies installed!
+    </pre>
+    </div>
+  </TabItem>
+</Tabs>
 
 :::tip
 This script installs all the necessary dependencies to run a FiveM server on Linux, including basic tools like wget, git, curl, and screen which are essential for server management.
@@ -117,18 +176,44 @@ If you encounter permission errors when running the script, make sure your user 
 
 ## What Does This Script Do?
 
-The installation script performs the following operations:
+<div className="grid-container" style={{
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+  gap: '1rem',
+  marginBottom: '2rem'
+}}>
+  <div className="grid-item" style={{
+    border: '1px solid var(--ifm-color-emphasis-300)',
+    borderRadius: 'var(--ifm-global-radius)',
+    padding: '1rem',
+    backgroundColor: 'var(--ifm-color-emphasis-100)'
+  }}>
+    <h3>1. System Update</h3>
+    <p>Updates APT sources and system packages</p>
+  </div>
+  <div className="grid-item" style={{
+    border: '1px solid var(--ifm-color-emphasis-300)',
+    borderRadius: 'var(--ifm-global-radius)',
+    padding: '1rem',
+    backgroundColor: 'var(--ifm-color-emphasis-100)'
+  }}>
+    <h3>2. Dependencies Installation</h3>
+    <p>Installs all packages necessary for FiveM to function</p>
+  </div>
+</div>
 
-1. **System Update** - Updates APT sources and system packages
-2. **Dependencies Installation** - Installs all packages necessary for FiveM to function:
-   - wget: For downloading files
-   - xz-utils: For decompressing archives
-   - git: For version control
-   - nano: Simple text editor
-   - curl: Data transfer tool
-   - unzip: For decompressing archives
-   - screen: For running processes in the background
-   - jq: For manipulating JSON data
-   - rsync: For file synchronization
+### List of Installed Dependencies
+
+| Tool | Description |
+|-------|-------------|
+| wget | For downloading files |
+| xz-utils | For decompressing archives |
+| git | For version control |
+| nano | Simple text editor |
+| curl | Data transfer tool |
+| unzip | For decompressing archives |
+| screen | For running processes in the background |
+| jq | For manipulating JSON data |
+| rsync | For file synchronization |
 
 In the next sections, we'll see how to download and configure the FiveM server itself.
