@@ -45,15 +45,26 @@ import TabItem from '@theme/TabItem';
   <video 
     width="100%" 
     controls 
-    preload="none"
+    autoplay 
+    muted 
+    loop
+    defaultMuted
+    playsInline
+    volume={0}
+    preload="auto"
     style={{
       borderRadius: '8px',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
       backgroundColor: '#000',
       marginBottom: '1rem'
     }}
+    onPlay={(e) => {
+      e.target.muted = true;
+      e.target.volume = 0;
+    }}
   >
     <source src="/video/tutorial-fivem/create-fivem-user.mp4" type="video/mp4" />
+    <track kind="captions" />
     Votre navigateur ne prend pas en charge les vidéos HTML5.
   </video>
   <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--ifm-color-emphasis-700)' }}>
