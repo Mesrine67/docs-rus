@@ -471,34 +471,133 @@ Copiez le contenu suivant dans le fichier :
 # txData se génère automatiquement au premier lancement
 # =============================================================================
 
-# Chemins (txData sera créé automatiquement)
-export TXHOST_DATA_PATH=/home/fivem/FXServer/txData
+# ==================== GÉNÉRAL ====================
+
+# Chemin vers le dossier txData (OPTIONNEL)
+# Par défaut : Windows: <fxserver_root>/../txData | Linux: <fxserver_root>/../../../txData
+# TXHOST_DATA_PATH=/home/fivem/FXServer/txData
+
+# Restriction du type de jeu (OBLIGATOIRE)
+# Options: 'fivem' ou 'redm'
 export TXHOST_GAME_NAME=fivem
 
-# Réseau
-export TXHOST_TXA_PORT=40120
-export TXHOST_FXS_PORT=30120
-export TXHOST_INTERFACE=0.0.0.0
-
-# Performance
-export TXHOST_QUIET_MODE=false
+# Limite maximale de slots serveur (OBLIGATOIRE)
 export TXHOST_MAX_SLOTS=32
 
-# Personnalisation
+# Mode silencieux - ne pas afficher la sortie FXServer dans txAdmin (OBLIGATOIRE)
+export TXHOST_QUIET_MODE=false
+
+# Token API pour l'endpoint /host/status (OPTIONNEL)
+# Options: 'disabled' ou token de 16-48 caractères
+# TXHOST_API_TOKEN=disabled
+
+# ==================== RÉSEAU ====================
+
+# URL publique de txAdmin (OPTIONNEL)
+# Utile pour les conteneurs Docker
+# TXHOST_TXA_URL=http://mon-serveur.com:40120
+
+# Port TCP pour txAdmin (OBLIGATOIRE - défaut: 40120)
+export TXHOST_TXA_PORT=40120
+
+# Port forcé pour FXServer (OBLIGATOIRE)
+export TXHOST_FXS_PORT=30120
+
+# Interface réseau (OBLIGATOIRE - défaut: 0.0.0.0)
+export TXHOST_INTERFACE=0.0.0.0
+
+# ==================== FOURNISSEUR ====================
+
+# Nom du fournisseur d'hébergement (OBLIGATOIRE - défaut: "Host Config")
 export TXHOST_PROVIDER_NAME="Mon Serveur FiveM"
 
-# Configuration moderne
+# Logo du fournisseur (OPTIONNEL)
+# Taille max: 224x96, supporte {theme} pour light/dark
+# TXHOST_PROVIDER_LOGO=https://example.com/logo_{theme}.png
+
+# ==================== VALEURS PAR DÉFAUT ====================
+
+# Configuration base de données par défaut (OPTIONNEL)
+# TXHOST_DEFAULT_DBHOST=127.0.0.1
+# TXHOST_DEFAULT_DBPORT=3306
+# TXHOST_DEFAULT_DBUSER=root
+# TXHOST_DEFAULT_DBPASS=motdepasse
+# TXHOST_DEFAULT_DBNAME=fivem_db
+
+# Clé CFX par défaut (OPTIONNEL)
+# Format: cfxk_xxxxxxxxxxxxxxxxxxxxx_xxxxxx
+# TXHOST_DEFAULT_CFXKEY=cfxk_11hIT156dX0F0ekFVsuda_fQ0ZYS
+
+# Compte administrateur par défaut (OPTIONNEL)
+# Format: username:fivem_id:bcrypt_password
+# Exemples:
+# - tabarra:271816 (avec FiveM ID seulement)
+# - tabarra:271816:$2a$11$K3HwDzkoUfhU6.W.tScfhOLEtR5uNc9qpQ685emtERx3dZ7fmgXCy (complet)
+# - tabarra::$2a$11$K3HwDzkoUfhU6.W.tScfhOLEtR5uNc9qpQ685emtERx3dZ7fmgXCy (sans FiveM ID)
+# TXHOST_DEFAULT_ACCOUNT=admin:271816
+
+# ==================== CONFIGURATION MODERNE ====================
+
+# Ignorer les anciennes configurations (OBLIGATOIRE)
 export TXHOST_IGNORE_DEPRECATED_CONFIGS=true
 ```
 </details>
 
-### Étape 2: Démarrer le serveur avec txAdmin
+### Étape 2: Créer le script de démarrage avec txAdmin
 
-Pour démarrer votre serveur FiveM avec txAdmin, exécutez les commandes suivantes :
+Créez un script pour démarrer facilement votre serveur avec les variables d'environnement :
 
 ```bash title="Terminal"
+nano ~/FXServer/start_server.sh
+```
+
+Copiez le contenu suivant :
+
+<details>
+<summary><strong>📄 start_server.sh</strong></summary>
+
+```bash showLineNumbers
+#!/bin/bash
+
+# Couleurs pour les messages
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo -e "${BLUE}🚀 DÉMARRAGE DU SERVEUR FIVEM${NC}"
+echo "================================="
+
+# Chargement des variables d'environnement txAdmin
+if [ -f ~/FXServer/txadmin.env ]; then
+    echo -e "${GREEN}✅ Chargement de la configuration txAdmin...${NC}"
+    source ~/FXServer/txadmin.env
+else
+    echo "❌ Fichier txadmin.env introuvable!"
+    exit 1
+fi
+
+# Démarrage du serveur
+echo -e "${GREEN}✅ Démarrage du serveur FiveM avec txAdmin...${NC}"
+echo -e "${BLUE}📍 Interface txAdmin disponible sur: http://$(hostname -I | awk '{print $1}'):${TXHOST_TXA_PORT}${NC}"
+echo ""
+
 cd ~/FXServer/server
-./run.sh
+./run.sh +exec server-data/server.cfg
+```
+</details>
+
+Rendez le script exécutable :
+
+```bash title="Terminal"
+chmod +x ~/FXServer/start_server.sh
+```
+
+### Étape 3: Démarrer le serveur
+
+Pour démarrer votre serveur FiveM avec txAdmin, exécutez :
+
+```bash title="Terminal"
+~/FXServer/start_server.sh
 ```
 
 Une fois le serveur démarré, vous verrez un message dans la console avec l'URL pour accéder à txAdmin, généralement `http://votre_ip:40120`.
@@ -515,8 +614,7 @@ Pour que votre serveur continue de fonctionner même après avoir fermé votre c
 
 ```bash title="Terminal"
 screen -S fivem
-cd ~/FXServer/server
-./run.sh
+~/FXServer/start_server.sh
 ```
 
 Pour détacher la session Screen (laisser le serveur tourner en arrière-plan), appuyez sur <kbd>Ctrl</kbd> + <kbd>A</kbd>, puis <kbd>D</kbd>.
@@ -531,13 +629,54 @@ screen -r fivem
 
 Pour arrêter proprement votre serveur FiveM, utilisez la commande `quit` dans la console du serveur ou fermez-le via l'interface txAdmin.
 
+### Commandes utiles pour Screen
+
+| Commande | Description |
+|----------|-------------|
+| `screen -S fivem` | Créer une nouvelle session nommée "fivem" |
+| `screen -r fivem` | Se reconnecter à la session "fivem" |
+| `screen -ls` | Lister toutes les sessions actives |
+| <kbd>Ctrl</kbd> + <kbd>A</kbd>, <kbd>D</kbd> | Détacher la session courante |
+
+## Variables d'environnement txAdmin
+
+### Variables obligatoires configurées
+
+- **TXHOST_GAME_NAME** : Type de jeu (fivem/redm)
+- **TXHOST_TXA_PORT** : Port pour txAdmin (40120)
+- **TXHOST_FXS_PORT** : Port pour FXServer (30120)
+- **TXHOST_INTERFACE** : Interface réseau (0.0.0.0)
+- **TXHOST_PROVIDER_NAME** : Nom du serveur
+- **TXHOST_MAX_SLOTS** : Nombre maximum de joueurs
+- **TXHOST_QUIET_MODE** : Mode silencieux
+- **TXHOST_IGNORE_DEPRECATED_CONFIGS** : Ignorer anciennes configs
+
+### Variables optionnelles disponibles
+
+- **TXHOST_DATA_PATH** : Chemin personnalisé pour txData
+- **TXHOST_API_TOKEN** : Token pour l'API
+- **TXHOST_TXA_URL** : URL publique de txAdmin
+- **TXHOST_PROVIDER_LOGO** : Logo du fournisseur
+- **TXHOST_DEFAULT_DB*** : Configuration BDD par défaut
+- **TXHOST_DEFAULT_CFXKEY** : Clé CFX par défaut
+- **TXHOST_DEFAULT_ACCOUNT** : Compte admin par défaut
+
 ## Conclusion
 
-Félicitations ! Vous avez maintenant un serveur FiveM fonctionnel sur votre système Linux/Ubuntu. Vous pouvez maintenant accéder à l'interface d'administration txAdmin pour configurer davantage votre serveur, installer des ressources supplémentaires et commencer à jouer.
+Félicitations ! Vous avez maintenant un serveur FiveM fonctionnel sur votre système Linux/Ubuntu avec txAdmin v8.0.0+. Vous pouvez maintenant accéder à l'interface d'administration txAdmin pour configurer davantage votre serveur, installer des ressources supplémentaires et commencer à jouer.
 
 :::tip Prochaines étapes
-- Configuration avancée de txAdmin
+- Configuration avancée de txAdmin via l'interface web
 - Installation de frameworks populaires (ESX, QBCore, etc.)
-- Mise en place d'un système de mise à jour automatique
-- Sécurisation de votre serveur
+- Mise en place d'un système de sauvegarde automatique
+- Sécurisation de votre serveur (pare-feu, SSL)
+- Configuration d'une base de données MySQL/MariaDB
+:::
+
+:::warning Sécurité
+N'oubliez pas de :
+- Changer les mots de passe par défaut
+- Configurer un pare-feu (UFW recommandé)
+- Mettre à jour régulièrement votre système
+- Sauvegarder vos données importantes
 :::
