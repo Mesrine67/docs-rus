@@ -268,11 +268,11 @@ Si vous rencontrez des erreurs de permission lors de l'exécution du script, ass
 
 ## Installation du serveur FiveM
 
-Maintenant que nous avons installé toutes les dépendances nécessaires, nous allons procéder à l'installation du serveur FiveM lui-même.
+Maintenant que toutes les dépendances sont installées, nous allons télécharger et configurer le serveur FiveM lui-même.
 
 ### Étape 1: Créer le script d'installation du serveur
 
-Créez un nouveau script qui va télécharger et installer automatiquement la dernière version du serveur FiveM.
+Créez un script qui va automatiquement télécharger et installer la dernière version du serveur FiveM.
 
 ```bash title="Terminal"
 nano install_fivem_server.sh
@@ -304,106 +304,53 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 log_step() { echo -e "${PURPLE}[ÉTAPE]${NC} $1"; }
 log_check() { echo -e "${CYAN}[CHECK]${NC} $1"; }
 
-# Vérification du système
-check_system() {
-  log_step "🔍 VÉRIFICATIONS SYSTÈME"
-  echo "================================"
-  
-  if [[ $EUID -eq 0 ]]; then
-    log_error "❌ Ne pas exécuter en tant que root!"
-    exit 1
-  fi
-  log_check "✅ Utilisateur non-root"
-  
-  if [[ ! -f /etc/os-release ]]; then
-    log_error "❌ Impossible de détecter l'OS"
-    exit 1
-  fi
-  
-  . /etc/os-release
-  if [[ "$ID" != "ubuntu" ]]; then
-    log_warning "⚠️  OS détecté: $PRETTY_NAME (recommandé: Ubuntu 22.04 LTS)"
-    read -p "Continuer quand même ? (y/N): " continue_anyway
-    [[ "$continue_anyway" != "y" ]] && exit 1
-  else
-    log_check "✅ Ubuntu détecté: $PRETTY_NAME"
-  fi
-  
-  ram_mb=$(free -m | awk 'NR==2{printf "%.0f", $2}')
-  if [[ $ram_mb -lt 2048 ]]; then
-    log_warning "⚠️  RAM: ${ram_mb}MB (recommandé: 2GB+)"
-  else
-    log_check "✅ RAM: ${ram_mb}MB"
-  fi
-  
-  disk_gb=$(df -BG / | awk 'NR==2 {print $4}' | sed 's/G//')
-  if [[ $disk_gb -lt 10 ]]; then
-    log_warning "⚠️  Espace libre: ${disk_gb}GB (recommandé: 10GB+)"
-  else
-    log_check "✅ Espace libre: ${disk_gb}GB"
-  fi
-  
-  if ! ping -c 1 google.com &> /dev/null; then
-    log_error "❌ Pas de connexion internet"
-    exit 1
-  fi
-  log_check "✅ Connexion internet"
-  
-  echo ""
-  log_success "🎯 Toutes les vérifications passées !"
-  echo ""
-}
+# Vérification de base
+if [[ $EUID -eq 0 ]]; then
+  log_error "❌ Ne pas exécuter en tant que root!"
+  exit 1
+fi
 
-# Installation du serveur
-install_server() {
-  log_step "🏗️  INSTALLATION DU SERVEUR FIVEM"
-  echo "===================================="
-  
-  # Création des dossiers (txData se génère automatiquement)
-  log_info "Création de l'arborescence..."
-  mkdir -p ~/FXServer/server
-  mkdir -p ~/FXServer/server-data
-  mkdir -p ~/FXServer/backups
-  mkdir -p ~/FXServer/backups/resources
-  log_success "✅ Dossiers créés (txData sera généré par txAdmin)"
-  
-  # Téléchargement FiveM
-  log_info "Téléchargement de FiveM (dernière version)..."
-  cd ~/FXServer/server
-  
-  # API pour récupérer la dernière version
-  API_URL="https://changelogs-live.fivem.net/api/changelog/versions/linux/server"
-  latestDownloadUrl=$(curl -s "$API_URL" | jq -r '.latest_download')
-  
-  if [[ -z "$latestDownloadUrl" || "$latestDownloadUrl" == "null" ]]; then
-    log_error "❌ Impossible de récupérer l'URL de téléchargement"
-    exit 1
-  fi
-  
-  wget --progress=bar:force "$latestDownloadUrl" -O fx.tar.xz
-  tar xf fx.tar.xz
-  rm fx.tar.xz
-  log_success "✅ FiveM téléchargé et extrait"
-  
-  # Téléchargement des données de base
-  log_info "Téléchargement des données de base..."
-  if [[ ! -d "~/FXServer/server-data/.git" ]]; then
-    git clone https://github.com/citizenfx/cfx-server-data.git /tmp/cfx-server-data
-    cp -r /tmp/cfx-server-data/* ~/FXServer/server-data/
-    rm -rf /tmp/cfx-server-data
-    log_success "✅ Données de base installées"
-  else
-    log_warning "⚠️  Les données de base existent déjà"
-  fi
-  
-  echo ""
-  log_success "🎉 INSTALLATION TERMINÉE - Serveur créé !"
-  echo ""
-}
+log_step "🏗️  INSTALLATION DU SERVEUR FIVEM"
+echo "===================================="
 
-# Exécution des fonctions principales
-check_system
-install_server
+# Création des dossiers principaux
+log_info "Création de l'arborescence..."
+mkdir -p ~/FXServer/server
+mkdir -p ~/FXServer/server-data
+log_success "✅ Dossiers créés (txData sera généré par txAdmin)"
+
+# Téléchargement FiveM
+log_info "Téléchargement de FiveM (dernière version)..."
+cd ~/FXServer/server
+
+# API pour récupérer la dernière version
+API_URL="https://changelogs-live.fivem.net/api/changelog/versions/linux/server"
+latestDownloadUrl=$(curl -s "$API_URL" | jq -r '.latest_download')
+
+if [[ -z "$latestDownloadUrl" || "$latestDownloadUrl" == "null" ]]; then
+  log_error "❌ Impossible de récupérer l'URL de téléchargement"
+  exit 1
+fi
+
+wget --progress=bar:force "$latestDownloadUrl" -O fx.tar.xz
+tar xf fx.tar.xz
+rm fx.tar.xz
+log_success "✅ FiveM téléchargé et extrait"
+
+# Téléchargement des données de base
+log_info "Téléchargement des données de base..."
+if [[ ! -d "$HOME/FXServer/server-data/.git" ]]; then
+  git clone https://github.com/citizenfx/cfx-server-data.git /tmp/cfx-server-data
+  cp -r /tmp/cfx-server-data/* ~/FXServer/server-data/
+  rm -rf /tmp/cfx-server-data
+  log_success "✅ Données de base installées"
+else
+  log_warning "⚠️  Les données de base existent déjà"
+fi
+
+echo ""
+log_success "🎉 INSTALLATION TERMINÉE - Serveur créé !"
+echo ""
 ```
 </details>
 
@@ -423,16 +370,34 @@ Après avoir collé le code, appuyez sur <kbd>Ctrl</kbd> + <kbd>X</kbd>, puis su
     ```bash title="Terminal"
     ./install_fivem_server.sh
     ```
+    
+    <div className="terminal-output">
+    <pre style={{
+      backgroundColor: '#282c34',
+      color: '#f8f8f2',
+      padding: '1rem',
+      borderRadius: '0.5rem',
+      overflow: 'auto'
+    }}>
+    <span style={{color: '#d371e3'}}>[ÉTAPE]</span> 🏗️  INSTALLATION DU SERVEUR FIVEM
+    ====================================
+    <span style={{color: '#61afef'}}>[INFO]</span> Création de l'arborescence...
+    <span style={{color: '#98c379'}}>[SUCCESS]</span> ✅ Dossiers créés (txData sera généré par txAdmin)
+    <span style={{color: '#61afef'}}>[INFO]</span> Téléchargement de FiveM (dernière version)...
+    <span style={{color: '#61afef'}}>--2023-07-06 15:42:31--  https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/6683-9a1b2c5ad7ad5a79c8f1dde4f9f63c0cf72d1133/fx.tar.xz</span>
+    <span style={{color: '#98c379'}}>[SUCCESS]</span> ✅ FiveM téléchargé et extrait
+    <span style={{color: '#61afef'}}>[INFO]</span> Téléchargement des données de base...
+    <span style={{color: '#98c379'}}>[SUCCESS]</span> ✅ Données de base installées
+    
+    <span style={{color: '#98c379'}}>[SUCCESS]</span> 🎉 INSTALLATION TERMINÉE - Serveur créé !
+    </pre>
+    </div>
   </TabItem>
 </Tabs>
 
-:::tip
-Ce script vérifie d'abord la compatibilité de votre système, puis télécharge et installe automatiquement la dernière version du serveur FiveM.
-:::
-
 ### Étape 4: Configuration du serveur
 
-Créez un fichier de configuration pour votre serveur FiveM.
+Maintenant que le serveur est installé, nous devons créer un fichier de configuration pour le serveur FiveM.
 
 ```bash title="Terminal"
 nano ~/FXServer/server-data/server.cfg
@@ -485,9 +450,51 @@ sv_licenseKey "changez_moi_avec_votre_clé"
 Vous devez obtenir une clé de licence sur [https://keymaster.fivem.net](https://keymaster.fivem.net) et remplacer `changez_moi_avec_votre_clé` par votre propre clé.
 :::
 
-### Étape 5: Démarrer le serveur avec txAdmin
+## Configuration de txAdmin
 
-txAdmin est l'interface d'administration officielle pour les serveurs FiveM. Pour démarrer votre serveur avec txAdmin :
+txAdmin est l'interface d'administration officielle pour les serveurs FiveM. Voici comment configurer l'environnement txAdmin pour votre serveur.
+
+### Étape 1: Créer le fichier d'environnement txAdmin
+
+```bash title="Terminal"
+nano ~/FXServer/txadmin.env
+```
+
+Copiez le contenu suivant dans le fichier :
+
+<details>
+<summary><strong>📄 txadmin.env</strong></summary>
+
+```bash showLineNumbers
+# =============================================================================
+# CONFIGURATION txAdmin v8.0.0+ - Variables d'environnement TXHOST_*
+# txData se génère automatiquement au premier lancement
+# =============================================================================
+
+# Chemins (txData sera créé automatiquement)
+export TXHOST_DATA_PATH=/home/fivem/FXServer/txData
+export TXHOST_GAME_NAME=fivem
+
+# Réseau
+export TXHOST_TXA_PORT=40120
+export TXHOST_FXS_PORT=30120
+export TXHOST_INTERFACE=0.0.0.0
+
+# Performance
+export TXHOST_QUIET_MODE=false
+export TXHOST_MAX_SLOTS=32
+
+# Personnalisation
+export TXHOST_PROVIDER_NAME="Mon Serveur FiveM"
+
+# Configuration moderne
+export TXHOST_IGNORE_DEPRECATED_CONFIGS=true
+```
+</details>
+
+### Étape 2: Démarrer le serveur avec txAdmin
+
+Pour démarrer votre serveur FiveM avec txAdmin, exécutez les commandes suivantes :
 
 ```bash title="Terminal"
 cd ~/FXServer/server
@@ -526,7 +533,7 @@ Pour arrêter proprement votre serveur FiveM, utilisez la commande `quit` dans l
 
 ## Conclusion
 
-Félicitations ! Vous avez maintenant un serveur FiveM fonctionnel sur votre système Linux/Ubuntu. Dans les prochains tutoriels, nous verrons comment configurer des fonctionnalités avancées et installer des ressources supplémentaires.
+Félicitations ! Vous avez maintenant un serveur FiveM fonctionnel sur votre système Linux/Ubuntu. Vous pouvez maintenant accéder à l'interface d'administration txAdmin pour configurer davantage votre serveur, installer des ressources supplémentaires et commencer à jouer.
 
 :::tip Prochaines étapes
 - Configuration avancée de txAdmin
