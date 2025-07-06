@@ -26,6 +26,8 @@ sudo usermod -aG sudo fivem
 su - fivem
 ```
 
+![Création d'un utilisateur FiveM](/img/tutorial-fivem/create-fivem-user.gif)
+
 ou reconnectez-vous en SSH avec ce nouvel utilisateur
 
 ## Installation des dépendances
@@ -45,7 +47,6 @@ nano install_dependencies.sh
 
 set -e
 
-# Couleurs
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -62,7 +63,6 @@ echo "=============================="
 
 echo "Installation des prérequis..."
 
-# Mise à jour système
 log_info "Mise à jour des sources APT"
 if ! sudo apt update; then
     log_error "Échec mise à jour sources"
