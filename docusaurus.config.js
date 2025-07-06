@@ -14,7 +14,7 @@ const config = {
   tagline: 'Documentation',
   favicon: 'img/favicon.ico',
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://docs-rus.vercel.app/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -31,6 +31,7 @@ const config = {
     defaultLocale: 'en',
     locales: ['en', 'fr'],
   },
+  themes: ['@docusaurus/theme-live-codeblock'],
   presets: [
     [
       'classic',
@@ -38,6 +39,10 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
+          // Ajout du plugin npm2yarn pour convertir automatiquement les commandes npm
+          remarkPlugins: [
+            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+          ],
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           // editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
@@ -48,6 +53,9 @@ const config = {
             type: ['rss', 'atom'],
             xslt: true,
           },
+          remarkPlugins: [
+            [require('@docusaurus/remark-plugin-npm2yarn'), {sync: true}],
+          ],
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           // editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
@@ -67,7 +75,7 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       colorMode: {
-        defaultMode: 'light',
+        defaultMode: 'dark',
         // disableSwitch: false,
         // respectPrefersColorScheme: false,
       },
@@ -138,6 +146,32 @@ const config = {
       prism: {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
+        // Ajout de langages supplémentaires pour la coloration syntaxique
+        additionalLanguages: ['bash', 'diff', 'json', 'powershell'],
+        // Configuration des commentaires magiques pour la mise en évidence des lignes
+        magicComments: [
+          // Commentaires par défaut pour la mise en évidence
+          {
+            className: 'theme-code-block-highlighted-line',
+            line: 'highlight-next-line',
+            block: {start: 'highlight-start', end: 'highlight-end'},
+          },
+          // Commentaires personnalisés pour les lignes de succès
+          {
+            className: 'code-block-success-line',
+            line: 'success-line',
+          },
+          // Commentaires personnalisés pour les lignes d'erreur
+          {
+            className: 'code-block-error-line',
+            line: 'error-line',
+          },
+          // Commentaires personnalisés pour les lignes d'avertissement
+          {
+            className: 'code-block-warning-line',
+            line: 'warning-line',
+          },
+        ],
       },
     }),
 };

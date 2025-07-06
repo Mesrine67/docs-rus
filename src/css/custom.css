@@ -28,3 +28,62 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+[data-theme='dark'] {
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* Style pour les lignes de succès */
+.code-block-success-line {
+  background-color: rgba(0, 255, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  border-left: 3px solid #00cc00;
+}
+
+/* Style pour les lignes d'erreur */
+.code-block-error-line {
+  background-color: rgba(255, 0, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  border-left: 3px solid #ff0000;
+}
+
+/* Style pour les lignes d'avertissement */
+.code-block-warning-line {
+  background-color: rgba(255, 204, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  border-left: 3px solid #ffcc00;
+}
+
+/* Style pour la sortie de terminal */
+.terminal-output {
+  background-color: #282c34;
+  color: #f8f8f2;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  overflow: auto;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+/* Styles pour les couleurs de texte dans la sortie du terminal */
+.terminal-output .info {
+  color: #61afef;
+}
+
+.terminal-output .success {
+  color: #98c379;
+}
+
+.terminal-output .warning {
+  color: #e5c07b;
+}
+
+.terminal-output .error {
+  color: #e06c75;
+}
