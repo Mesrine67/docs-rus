@@ -266,4 +266,271 @@ Si vous rencontrez des erreurs de permission lors de l'exécution du script, ass
 | jq | Pour manipuler des données JSON |
 | rsync | Pour la synchronisation de fichiers |
 
-Dans les prochaines sections, nous verrons comment télécharger et configurer le serveur FiveM lui-même.
+## Installation du serveur FiveM
+
+Maintenant que nous avons installé toutes les dépendances nécessaires, nous allons procéder à l'installation du serveur FiveM lui-même.
+
+### Étape 1: Créer le script d'installation du serveur
+
+Créez un nouveau script qui va télécharger et installer automatiquement la dernière version du serveur FiveM.
+
+```bash title="Terminal"
+nano install_fivem_server.sh
+```
+
+### Étape 2: Copier le code suivant dans le fichier
+
+<details>
+<summary><strong>📄 install_fivem_server.sh</strong></summary>
+
+```bash showLineNumbers
+#!/bin/bash
+set -e
+
+# Couleurs pour les messages
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+# Fonctions pour les messages
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+log_step() { echo -e "${PURPLE}[ÉTAPE]${NC} $1"; }
+log_check() { echo -e "${CYAN}[CHECK]${NC} $1"; }
+
+# Vérification du système
+check_system() {
+  log_step "🔍 VÉRIFICATIONS SYSTÈME"
+  echo "================================"
+  
+  if [[ $EUID -eq 0 ]]; then
+    log_error "❌ Ne pas exécuter en tant que root!"
+    exit 1
+  fi
+  log_check "✅ Utilisateur non-root"
+  
+  if [[ ! -f /etc/os-release ]]; then
+    log_error "❌ Impossible de détecter l'OS"
+    exit 1
+  fi
+  
+  . /etc/os-release
+  if [[ "$ID" != "ubuntu" ]]; then
+    log_warning "⚠️  OS détecté: $PRETTY_NAME (recommandé: Ubuntu 22.04 LTS)"
+    read -p "Continuer quand même ? (y/N): " continue_anyway
+    [[ "$continue_anyway" != "y" ]] && exit 1
+  else
+    log_check "✅ Ubuntu détecté: $PRETTY_NAME"
+  fi
+  
+  ram_mb=$(free -m | awk 'NR==2{printf "%.0f", $2}')
+  if [[ $ram_mb -lt 2048 ]]; then
+    log_warning "⚠️  RAM: ${ram_mb}MB (recommandé: 2GB+)"
+  else
+    log_check "✅ RAM: ${ram_mb}MB"
+  fi
+  
+  disk_gb=$(df -BG / | awk 'NR==2 {print $4}' | sed 's/G//')
+  if [[ $disk_gb -lt 10 ]]; then
+    log_warning "⚠️  Espace libre: ${disk_gb}GB (recommandé: 10GB+)"
+  else
+    log_check "✅ Espace libre: ${disk_gb}GB"
+  fi
+  
+  if ! ping -c 1 google.com &> /dev/null; then
+    log_error "❌ Pas de connexion internet"
+    exit 1
+  fi
+  log_check "✅ Connexion internet"
+  
+  echo ""
+  log_success "🎯 Toutes les vérifications passées !"
+  echo ""
+}
+
+# Installation du serveur
+install_server() {
+  log_step "🏗️  INSTALLATION DU SERVEUR FIVEM"
+  echo "===================================="
+  
+  # Création des dossiers (txData se génère automatiquement)
+  log_info "Création de l'arborescence..."
+  mkdir -p ~/FXServer/server
+  mkdir -p ~/FXServer/server-data
+  mkdir -p ~/FXServer/backups
+  mkdir -p ~/FXServer/backups/resources
+  log_success "✅ Dossiers créés (txData sera généré par txAdmin)"
+  
+  # Téléchargement FiveM
+  log_info "Téléchargement de FiveM (dernière version)..."
+  cd ~/FXServer/server
+  
+  # API pour récupérer la dernière version
+  API_URL="https://changelogs-live.fivem.net/api/changelog/versions/linux/server"
+  latestDownloadUrl=$(curl -s "$API_URL" | jq -r '.latest_download')
+  
+  if [[ -z "$latestDownloadUrl" || "$latestDownloadUrl" == "null" ]]; then
+    log_error "❌ Impossible de récupérer l'URL de téléchargement"
+    exit 1
+  fi
+  
+  wget --progress=bar:force "$latestDownloadUrl" -O fx.tar.xz
+  tar xf fx.tar.xz
+  rm fx.tar.xz
+  log_success "✅ FiveM téléchargé et extrait"
+  
+  # Téléchargement des données de base
+  log_info "Téléchargement des données de base..."
+  if [[ ! -d "~/FXServer/server-data/.git" ]]; then
+    git clone https://github.com/citizenfx/cfx-server-data.git /tmp/cfx-server-data
+    cp -r /tmp/cfx-server-data/* ~/FXServer/server-data/
+    rm -rf /tmp/cfx-server-data
+    log_success "✅ Données de base installées"
+  else
+    log_warning "⚠️  Les données de base existent déjà"
+  fi
+  
+  echo ""
+  log_success "🎉 INSTALLATION TERMINÉE - Serveur créé !"
+  echo ""
+}
+
+# Exécution des fonctions principales
+check_system
+install_server
+```
+</details>
+
+:::note
+Après avoir collé le code, appuyez sur <kbd>Ctrl</kbd> + <kbd>X</kbd>, puis sur <kbd>Y</kbd> et <kbd>Entrée</kbd> pour enregistrer le fichier et quitter l'éditeur nano.
+:::
+
+### Étape 3: Rendre le script exécutable et l'exécuter
+
+<Tabs>
+  <TabItem value="chmod" label="Rendre exécutable" default>
+    ```bash title="Terminal"
+    chmod +x install_fivem_server.sh
+    ```
+  </TabItem>
+  <TabItem value="run" label="Exécuter le script">
+    ```bash title="Terminal"
+    ./install_fivem_server.sh
+    ```
+  </TabItem>
+</Tabs>
+
+:::tip
+Ce script vérifie d'abord la compatibilité de votre système, puis télécharge et installe automatiquement la dernière version du serveur FiveM.
+:::
+
+### Étape 4: Configuration du serveur
+
+Créez un fichier de configuration pour votre serveur FiveM.
+
+```bash title="Terminal"
+nano ~/FXServer/server-data/server.cfg
+```
+
+Copiez le contenu suivant dans le fichier :
+
+<details>
+<summary><strong>📄 server.cfg</strong></summary>
+
+```cfg showLineNumbers
+# =============================================================================
+# CONFIGURATION FIVEM SERVER
+# =============================================================================
+
+# Endpoints réseau
+endpoint_add_tcp "0.0.0.0:30120"
+endpoint_add_udp "0.0.0.0:30120"
+
+# Resources essentiels
+ensure mapmanager
+ensure chat
+ensure spawnmanager
+ensure sessionmanager
+ensure basic-gamemode
+ensure hardcap
+ensure rconlog
+
+# Configuration serveur
+sv_scriptHookAllowed 0
+sv_hostname "Mon Serveur FiveM"
+sets locale "fr-FR"
+sets tags "roleplay, français, txAdmin"
+
+# OneSync (recommandé)
+set onesync on
+
+# Performance et sécurité
+sv_endpointprivacy true
+sv_maxClients 32
+sv_enforceGameBuild 2944
+
+# Clé de licence
+# Obtenez votre clé sur https://keymaster.fivem.net
+sv_licenseKey "changez_moi_avec_votre_clé"
+```
+</details>
+
+:::warning Important
+Vous devez obtenir une clé de licence sur [https://keymaster.fivem.net](https://keymaster.fivem.net) et remplacer `changez_moi_avec_votre_clé` par votre propre clé.
+:::
+
+### Étape 5: Démarrer le serveur avec txAdmin
+
+txAdmin est l'interface d'administration officielle pour les serveurs FiveM. Pour démarrer votre serveur avec txAdmin :
+
+```bash title="Terminal"
+cd ~/FXServer/server
+./run.sh
+```
+
+Une fois le serveur démarré, vous verrez un message dans la console avec l'URL pour accéder à txAdmin, généralement `http://votre_ip:40120`.
+
+:::tip
+Lors du premier démarrage, vous devrez créer un compte administrateur et configurer votre serveur via l'assistant de configuration txAdmin.
+:::
+
+## Gestion du serveur
+
+### Démarrer le serveur en arrière-plan avec Screen
+
+Pour que votre serveur continue de fonctionner même après avoir fermé votre connexion SSH, utilisez l'utilitaire Screen :
+
+```bash title="Terminal"
+screen -S fivem
+cd ~/FXServer/server
+./run.sh
+```
+
+Pour détacher la session Screen (laisser le serveur tourner en arrière-plan), appuyez sur <kbd>Ctrl</kbd> + <kbd>A</kbd>, puis <kbd>D</kbd>.
+
+Pour vous reconnecter à la session :
+
+```bash title="Terminal"
+screen -r fivem
+```
+
+### Arrêter le serveur
+
+Pour arrêter proprement votre serveur FiveM, utilisez la commande `quit` dans la console du serveur ou fermez-le via l'interface txAdmin.
+
+## Conclusion
+
+Félicitations ! Vous avez maintenant un serveur FiveM fonctionnel sur votre système Linux/Ubuntu. Dans les prochains tutoriels, nous verrons comment configurer des fonctionnalités avancées et installer des ressources supplémentaires.
+
+:::tip Prochaines étapes
+- Configuration avancée de txAdmin
+- Installation de frameworks populaires (ESX, QBCore, etc.)
+- Mise en place d'un système de mise à jour automatique
+- Sécurisation de votre serveur
+:::
