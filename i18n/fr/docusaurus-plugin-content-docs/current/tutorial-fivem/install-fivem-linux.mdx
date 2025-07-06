@@ -14,23 +14,31 @@ Pour des raisons de sécurité, il est recommandé de créer un utilisateur déd
 
 ## Connectez-vous en SSH à votre serveur
 
-```bash title="[command] - créer un nouvel utilisateur nommé 'fivem'"
-sudo adduser fivem
-```
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-:::info
-Le système vous demandera de définir un mot de passe pour l'utilisateur `fivem`. 
-Choisissez un mot de passe sécurisé et notez-le bien !
-:::
-
-
-```bash title="[command] - Ajoutez l'utilisateur au groupe sudo pour les permissions administratives"
-sudo usermod -aG sudo fivem
-```
-
-```bash title="[command] - Connectez-vous avec le nouvel utilisateur"
-su - fivem
-```
+<Tabs groupId="commands">
+  <TabItem value="create-user" label="Créer l'utilisateur" default>
+    ```bash title="Terminal"
+    sudo adduser fivem
+    ```
+    
+    :::info
+    Le système vous demandera de définir un mot de passe pour l'utilisateur `fivem`. 
+    Choisissez un mot de passe sécurisé et notez-le bien !
+    :::
+  </TabItem>
+  <TabItem value="add-sudo" label="Ajouter aux sudoers">
+    ```bash title="Terminal"
+    sudo usermod -aG sudo fivem
+    ```
+  </TabItem>
+  <TabItem value="login" label="Se connecter">
+    ```bash title="Terminal"
+    su - fivem
+    ```
+  </TabItem>
+</Tabs>
 
 :::tip title="Démonstration visuelle"
 ![Création d'un utilisateur FiveM](/img/tutorial-fivem/create-fivem-user.gif)
@@ -44,23 +52,27 @@ Créez un script d'installation pour les dépendances nécessaires à FiveM.
 
 ### Étape 1: Créer le script d'installation
 
-```bash title="[command] - Créez un nouveau fichier pour le script"
+```bash title="Terminal"
 nano install_dependencies.sh
 ```
 
 ### Étape 2: Copier le code suivant dans le fichier
 
-```bash title="install_dependencies.sh"
-#!/bin/bash
+<details>
+<summary><strong>📄 install_dependencies.sh</strong></summary>
 
+```bash showLineNumbers
+#!/bin/bash
 set -e
 
+# Couleurs pour les messages
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+# Fonctions pour les messages
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
@@ -71,6 +83,7 @@ echo "=============================="
 
 echo "Installation des prérequis..."
 
+# Mise à jour du système
 log_info "Mise à jour des sources APT"
 if ! sudo apt update; then
     log_error "Échec mise à jour sources"
@@ -105,16 +118,53 @@ echo ""
 
 log_success "Dépendances installées !"
 ```
+</details>
 
 ### Étape 3: Rendre le script exécutable et l'exécuter
 
-```bash title="[command] - Rendre le script exécutable"
-chmod +x install_dependencies.sh
-```
-
-```bash title="[command] - Exécuter le script"
-./install_dependencies.sh
-```
+<Tabs>
+  <TabItem value="chmod" label="Rendre exécutable" default>
+    ```bash title="Terminal"
+    chmod +x install_dependencies.sh
+    ```
+  </TabItem>
+  <TabItem value="run" label="Exécuter le script">
+    ```bash title="Terminal"
+    ./install_dependencies.sh
+    ```
+    
+    <div className="terminal-output">
+    <pre style={{
+      backgroundColor: '#282c34',
+      color: '#f8f8f2',
+      padding: '1rem',
+      borderRadius: '0.5rem',
+      overflow: 'auto'
+    }}>
+    <span style={{color: '#61afef'}}>INSTALLATION DÉPENDANCES FIVEM</span>
+    ==============================
+    Installation des prérequis...
+    <span style={{color: '#61afef'}}>[INFO]</span> Mise à jour des sources APT
+    <span style={{color: '#98c379'}}>[OK]</span> Sources mises à jour
+    <span style={{color: '#61afef'}}>[INFO]</span> Mise à jour système (peut prendre du temps...)
+    <span style={{color: '#98c379'}}>[OK]</span> Système mis à jour
+    
+    <span style={{color: '#61afef'}}>[INFO]</span> Installation dépendances
+    <span style={{color: '#98c379'}}>[OK]</span> wget installé
+    <span style={{color: '#98c379'}}>[OK]</span> xz-utils installé
+    <span style={{color: '#98c379'}}>[OK]</span> git installé
+    <span style={{color: '#98c379'}}>[OK]</span> nano installé
+    <span style={{color: '#98c379'}}>[OK]</span> curl installé
+    <span style={{color: '#98c379'}}>[OK]</span> unzip installé
+    <span style={{color: '#98c379'}}>[OK]</span> screen installé
+    <span style={{color: '#98c379'}}>[OK]</span> jq installé
+    <span style={{color: '#98c379'}}>[OK]</span> rsync installé
+    
+    <span style={{color: '#98c379'}}>[OK]</span> Dépendances installées !
+    </pre>
+    </div>
+  </TabItem>
+</Tabs>
 
 :::tip
 Ce script installe toutes les dépendances nécessaires pour faire fonctionner un serveur FiveM sur Linux, y compris les outils de base comme wget, git, curl, et screen qui sont essentiels pour la gestion du serveur.
@@ -126,18 +176,44 @@ Si vous rencontrez des erreurs de permission lors de l'exécution du script, ass
 
 ## Que fait ce script?
 
-Le script d'installation effectue les opérations suivantes:
+<div className="grid-container" style={{
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+  gap: '1rem',
+  marginBottom: '2rem'
+}}>
+  <div className="grid-item" style={{
+    border: '1px solid var(--ifm-color-emphasis-300)',
+    borderRadius: 'var(--ifm-global-radius)',
+    padding: '1rem',
+    backgroundColor: 'var(--ifm-color-emphasis-100)'
+  }}>
+    <h3>1. Mise à jour du système</h3>
+    <p>Met à jour les sources APT et les paquets du système</p>
+  </div>
+  <div className="grid-item" style={{
+    border: '1px solid var(--ifm-color-emphasis-300)',
+    borderRadius: 'var(--ifm-global-radius)',
+    padding: '1rem',
+    backgroundColor: 'var(--ifm-color-emphasis-100)'
+  }}>
+    <h3>2. Installation des dépendances</h3>
+    <p>Installe tous les paquets nécessaires au fonctionnement de FiveM</p>
+  </div>
+</div>
 
-1. **Mise à jour du système** - Met à jour les sources APT et les paquets du système
-2. **Installation des dépendances** - Installe tous les paquets nécessaires au fonctionnement de FiveM:
-   - wget: Pour télécharger des fichiers
-   - xz-utils: Pour la décompression des archives
-   - git: Pour la gestion des versions
-   - nano: Éditeur de texte simple
-   - curl: Outil de transfert de données
-   - unzip: Pour décompresser des archives
-   - screen: Pour exécuter des processus en arrière-plan
-   - jq: Pour manipuler des données JSON
-   - rsync: Pour la synchronisation de fichiers
+### Liste des dépendances installées
+
+| Outil | Description |
+|-------|-------------|
+| wget | Pour télécharger des fichiers |
+| xz-utils | Pour la décompression des archives |
+| git | Pour la gestion des versions |
+| nano | Éditeur de texte simple |
+| curl | Outil de transfert de données |
+| unzip | Pour décompresser des archives |
+| screen | Pour exécuter des processus en arrière-plan |
+| jq | Pour manipuler des données JSON |
+| rsync | Pour la synchronisation de fichiers |
 
 Dans les prochaines sections, nous verrons comment télécharger et configurer le serveur FiveM lui-même.
