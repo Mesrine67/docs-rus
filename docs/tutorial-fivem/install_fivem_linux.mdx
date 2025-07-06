@@ -14,9 +14,14 @@ For security reasons, it's recommended to create a dedicated user for your FiveM
 
 ## Connect to your server via SSH
 
-```bash title="[command] - reate a new user named 'fivem' without a password"
-sudo adduser --disabled-password --gecos "" fivem
+```bash title="[command] - Create a new user named 'fivem'"
+sudo adduser fivem
 ```
+
+:::info
+The system will ask you to set a password for the `fivem` user. 
+Choose a secure password and make sure to note it down!
+:::
 
 ```bash title="[command] - Add the user to the sudo group for administrative permissions"
 sudo usermod -aG sudo fivem

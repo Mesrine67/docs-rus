@@ -14,9 +14,15 @@ Pour des raisons de sécurité, il est recommandé de créer un utilisateur déd
 
 ## Connectez-vous en SSH à votre serveur
 
-```bash title="[command] - créer un nouvel utilisateur nommé 'fivem' sans mot de passe"
-sudo adduser --disabled-password --gecos "" fivem
+```bash title="[command] - créer un nouvel utilisateur nommé 'fivem'"
+sudo adduser fivem
 ```
+
+:::info
+Le système vous demandera de définir un mot de passe pour l'utilisateur `fivem`. 
+Choisissez un mot de passe sécurisé et notez-le bien !
+:::
+
 
 ```bash title="[command] - Ajoutez l'utilisateur au groupe sudo pour les permissions administratives"
 sudo usermod -aG sudo fivem
